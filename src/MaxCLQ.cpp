@@ -33,20 +33,61 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
     //try to find a loose set containing color x,return 0: not found 1: found
     //cN: number of colors
     std::vector<ints > __color;
+    ints colorSeq;
     for(int i = 0;i < cN;++i){
         if(!tested[i]){
             __color.push_back(color[i]);            
+            colorSeq.push_back(i);
         }
     }
-    ints LooseSet;LooseSet.push_back(x);
-    ints del(cN,0);
+    ints LooseSet;
+    LooseSet.push_back(x);
     bool flag=false;
+    int N=__color.size();
     for(auto v: color[x]){
-        std::fill(del.begin(),del.end(),0);
-        del[x]=1;
-
+        std::vector<ints > COLOR = __color;
+        ints SEQ = colorSeq;
+        for(auto& vec:COLOR){
+            int n=vec.size();
+            int i,j;
+            for(i=0,j=0;i<n;++i){
+                if(G[v][i])vec[j++]=vec[i];
+            }
+            vec.resize(j);
+            if(vec[0]==v)vec.clear();
+        }
+        bool f,g;
         while(1){
-            
+            f=false;
+            for(int i=0;i<N;++i){
+                if(COLOR[i].empty()){
+                    LooseSet.push_back(SEQ[i]);
+                    f=true;break;
+                }
+            }
+            if(f)break;
+            g=false;
+            for(int i=0;i<N;++i){
+                if(COLOR[i].size()==1){
+                    LooseSet.push_back(SEQ[i]);
+                    g=true;
+                    int v=COLOR[i][0];
+                    for(auto& vec:COLOR){
+                        int n=vec.size();
+                        int i,j;
+                        for(i=0,j=0;i<n;++i){
+                            if(G[v][i])vec[j++]=vec[i];
+                        }
+                        vec.resize(j);
+                        if(vec[0]==v)vec.clear();
+                    }
+                }
+            }
+            if(!g)break;
+        }
+        if(!f){
+            flag=true;
+            break;
         }
     }
     if(flag)return 0;
@@ -60,7 +101,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
 int MaxCLQ::esti(const Graph& G, const ints& V){
     std::vector<ints> color;
     getColor(color, G, V);
-//    return color.size();
+    return color.size();
     //advanced upper bound
     int UB=color.size();
     ints tested(UB, 0);

@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     
     // Estimate runtime
     Estimator estimator;
-    estimator.estimate(new BBMCX(), G);
-
+    if(argc==2)estimator.estimate(new BBMCX(), G);
+    else if(argc==3)estimator.estimate(new MaxCLQ(), G);
     return 0;
 }
