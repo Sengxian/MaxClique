@@ -1,23 +1,27 @@
-#include "bnb.h"
+#include "MaxCLQ.h"
 #include <algorithm>
 #include <iostream>
-ints maxclq::getMaxClique(const Graph &G){
+
+ints MaxCLQ::getMaxClique(const Graph &G){
     ints V;
     for(int i=0;i<G.n;++i)V.push_back(i);
     search(G,ints(0),V);
     return maxClique;
 }
-int maxclq::esti(const Graph& G, const ints& V){
+
+int MaxCLQ::esti(const Graph& G, const ints& V){
     return G.n;
 }
-void maxclq::update(ints &C){
+
+void MaxCLQ::update(ints &C){
     int m=C.size();
     if(m>LB){
         LB=m;
         maxClique=C;
     }
 }
-ints maxclq::intersect(const ints& A, const ints& B){
+
+ints MaxCLQ::intersect(const ints& A, const ints& B){
     ints C;
     for(ints::const_iterator pt1=A.begin(),pt2=B.begin();pt1!=A.end()&&pt2!=B.end();){
         if((*pt1)==(*pt2))C.push_back(*pt1),++pt1,++pt2;
@@ -26,7 +30,8 @@ ints maxclq::intersect(const ints& A, const ints& B){
     }
     return C;
 }
-void maxclq::search(const Graph &G, ints C, ints V){
+
+void MaxCLQ::search(const Graph &G, ints C, ints V){
     //std::cout<<C.size()<<" "<<V.size()<<std::endl;
     if (V.empty()){ 
         update(C);

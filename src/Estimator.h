@@ -4,7 +4,7 @@
 
 class Estimator {
   public:
-     void estimate(Strategy *stg);
+     void estimate(Strategy *stg, const Graph &G);
 };
 
 #endif
