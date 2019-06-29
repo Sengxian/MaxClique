@@ -1,7 +1,6 @@
 #include "MaxCLQ.h"
 #include <algorithm>
 #include <iostream>
-
 ints MaxCLQ::getMaxClique(const Graph &G){
     ints V;
     for(int i=0;i<G.n;++i)V.push_back(i);
@@ -9,8 +8,31 @@ ints MaxCLQ::getMaxClique(const Graph &G){
     return maxClique;
 }
 
+static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
+    for(auto&& x:V){
+        bool flag=false;
+        for(auto& vec:color){
+            flag=true;
+            for(auto&& p:vec){
+                if(G[p][x]){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag){
+                vec.push_back(x);
+                break;
+            }
+        }
+        if(!flag){
+            color.push_back(ints(1,x));
+        }
+    }
+}
 int MaxCLQ::esti(const Graph& G, const ints& V){
-    return G.n;
+    std::vector<ints> color;
+    getColor(color,G,V);
+    return color.size();
 }
 
 void MaxCLQ::update(ints &C){
