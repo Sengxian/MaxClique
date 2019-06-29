@@ -1,5 +1,6 @@
 #include "bnb.h"
 #include <algorithm>
+#include <iostream>
 ints maxclq::getMaxClique(const Graph &G){
     ints V;
     for(int i=0;i<G.n;++i)V.push_back(i);
@@ -26,10 +27,14 @@ ints maxclq::intersect(const ints& A, const ints& B){
     return C;
 }
 void maxclq::search(const Graph &G, ints C, ints V){
-    if (V.empty()) update(C);
+    std::cout<<C.size()<<" "<<V.size()<<std::endl;
+    if (V.empty()){ 
+        update(C);
+        return;
+    }
     int ub = C.size() + esti(G,V);
     if (ub <= LB) return;
-    int v = G.mindeg();
+    int v = G.mindeg(V);
     C.push_back(v);
     search(G, C, intersect(V, G.neighbour(v)));
     C.pop_back();

@@ -13,7 +13,7 @@ class Graph {
     bool loadGraph(const char *filename);
     const ints& operator [] (const int &idx) const;
     int degree(int v)const;
-    int mindeg()const;
+    int mindeg(ints &V)const;
     //Graph without(int v);
     ints neighbour(int v)const;
 };

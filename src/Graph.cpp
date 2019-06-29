@@ -8,7 +8,7 @@ bool Graph::loadGraph(const char *filename) {
     if (in) {
         std::string tmp;
         std::stringstream ss;
-        int n, m;
+        int m;
         int u, v;
         while(getline(in,tmp)){
             if(tmp[0] == 'p'){
@@ -16,7 +16,7 @@ bool Graph::loadGraph(const char *filename) {
                 ss.clear();
                 ss.str(tmp);
                 ss >> tmp >> tmp;
-                ss >> n >> m;
+                ss >> this->n >> m;
     //            std::cout<<n<<" "<<m<<std::endl;
                 G.resize(n);
                 for(int i = 0;i < n;++i)G[i].resize(n);
@@ -44,11 +44,11 @@ int Graph::degree(int v)const{
     for(auto&& x:V)cnt+=x;
     return cnt;
 }
-int Graph::mindeg()const{
+int Graph::mindeg(ints &V)const{
     int min=n,v=-1;
-    for(int i=0;i<n;++i){
-        int cnt=degree(i);
-        if(cnt<min)v=i;
+    for(auto x:V){
+        int cnt=degree(x);
+        if(cnt<min)v=x;
     }
     return v;
 }
@@ -57,7 +57,7 @@ const ints& Graph::operator [] (const int &idx) const {
 }
 ints Graph::neighbour(int v)const{
     ints V;
-    for(int i=0;i<n;++i)if(G[v][i]||i==v)V.push_back(i);
+    for(int i=0;i<n;++i)if(G[v][i])V.push_back(i);
     return V;
 }
 /*
