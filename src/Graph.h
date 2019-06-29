@@ -1,14 +1,21 @@
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
 #include <vector>
-
+typedef std::vector<int> ints;
 class Graph {
   public:
     int n; // number of the vertices
-    std::vector<std::vector<int> > G; // adjacency matrix
-
+    std::vector<ints > G; // adjacency matrix
+    Graph(int sz=0):n(sz){
+      G.resize(n);
+      for(int i=0;i<n;++i)G[i].resize(n);
+    }
     bool loadGraph(const char *filename);
-    const std::vector<int>& operator [] (const int &idx) const;
+    const ints& operator [] (const int &idx) const;
+    int degree(int v)const;
+    int mindeg()const;
+    //Graph without(int v);
+    ints neighbour(int v)const;
 };
 
 #endif
