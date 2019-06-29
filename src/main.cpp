@@ -2,6 +2,7 @@
 #include <string>
 #include "Graph.h"
 #include "MaxCLQ.h"
+#include "BBMCX.h"
 #include "Estimator.h"
 using namespace std;
 
@@ -16,7 +17,7 @@ int main(int argc, char** argv) {
     
     // Estimate runtime
     Estimator estimator;
-    estimator.estimate(new MaxCLQ(), G);
+    estimator.estimate(new BBMCX(), G);
 
     return 0;
 }
