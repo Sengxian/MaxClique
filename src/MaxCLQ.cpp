@@ -29,10 +29,56 @@ static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
         }
     }
 }
+static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, int cN, int x){
+    //try to find a loose set containing color x,return 0: not found 1: found
+    //cN: number of colors
+    std::vector<ints > __color;
+    for(int i = 0;i < cN;++i){
+        if(!tested[i]){
+            __color.push_back(color[i]);            
+        }
+    }
+    ints LooseSet;LooseSet.push_back(x);
+    ints del(cN,0);
+    bool flag=false;
+    for(auto v: color[x]){
+        std::fill(del.begin(),del.end(),0);
+        del[x]=1;
+
+        while(1){
+            
+        }
+    }
+    if(flag)return 0;
+    else{
+        for(auto x:LooseSet){
+            tested[x]=true;
+        }
+        return 1;
+    }
+}
 int MaxCLQ::esti(const Graph& G, const ints& V){
     std::vector<ints> color;
-    getColor(color,G,V);
-    return color.size();
+    getColor(color, G, V);
+//    return color.size();
+    //advanced upper bound
+    int UB=color.size();
+    ints tested(UB, 0);
+    std::vector<ints> __color;
+    std::vector<std::pair<int, int> > seq;
+    int ind=0;
+    for(auto &vec : color){
+        seq.push_back(std::make_pair(vec.size(), ind) );
+        ++ind;
+    }
+    std::sort(seq.begin(), seq.end());
+    int inconsSets = 0;//inconsistent sets
+    for(auto pr : seq){
+        if(!tested[pr.second]){
+            inconsSets += getLooseSet(G, tested, color, UB, pr.second);
+        }
+    }
+    return UB-inconsSets;
 }
 
 void MaxCLQ::update(ints &C){
