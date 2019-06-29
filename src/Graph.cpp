@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iostream>
 bool Graph::loadGraph(const char *filename) {
     std::ifstream in(filename);
     if (in) {
@@ -11,19 +12,24 @@ bool Graph::loadGraph(const char *filename) {
         int u, v;
         while(getline(in,tmp)){
             if(tmp[0] == 'p'){
+    
                 ss.clear();
                 ss.str(tmp);
                 ss >> tmp >> tmp;
                 ss >> n >> m;
+    //            std::cout<<n<<" "<<m<<std::endl;
                 G.resize(n);
                 for(int i = 0;i < n;++i)G[i].resize(n);
+    
             }
-            if(tmp[0]=='e'){
+            else if(tmp[0]=='e'){
+//                std::cout<<tmp<<std::endl;
                 ss.clear();
                 ss.str(tmp);
                 ss >> tmp;
                 ss >> u >> v;
                 u--;v--;
+  //              std::cout<<u<<" "<<v<<std::endl;
                 G[u][v]=G[v][u]=1;
             }
         }
