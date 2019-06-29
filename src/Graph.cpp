@@ -60,36 +60,3 @@ ints Graph::neighbour(int v)const{
     for(int i=0;i<n;++i)if(G[v][i])V.push_back(i);
     return V;
 }
-/*
-Graph Graph::without(int v){
-    Graph Q(n-1);
-    for(int i=0;i<v;++i){
-        for(int j=0;j<v;++j){
-            Q[i][j]=G[i][j];            
-        }
-    }
-    
-    for(int i=v;i<n-1;++i){
-        for(int j=0;j<v;++j){
-            Q[i][j]=G[i+1][j];
-        }
-    }
-
-    for(int i=0;i<v;++i){
-        for(int j=v;j<n-1;++j){
-            Q[i][j]=G[i][j+1];
-        }
-    }
-    
-    for(int i=v;i<n-1;++i){
-        for(int j=v;j<n-1;++j){
-            Q[i][j]=G[i+1][j+1];
-        }
-    }
-    return Q;
-}
-
-Graph Graph::neighbour(int v){
-    ints
-}
-*/

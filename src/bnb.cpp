@@ -27,7 +27,7 @@ ints maxclq::intersect(const ints& A, const ints& B){
     return C;
 }
 void maxclq::search(const Graph &G, ints C, ints V){
-    std::cout<<C.size()<<" "<<V.size()<<std::endl;
+    //std::cout<<C.size()<<" "<<V.size()<<std::endl;
     if (V.empty()){ 
         update(C);
         return;
