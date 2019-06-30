@@ -76,7 +76,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
                     g=true;
                     int v=COLOR[i][0];
                     for(auto& vec:COLOR){
-                        int n=vec.size();
+                       int n=vec.size();
                         int i,j;
                         for(i=0,j=0;i<n;++i){
                             if(G[v][vec[i]])vec[j++]=vec[i];
@@ -104,7 +104,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
 int MaxCLQ::esti(const Graph& G, const ints& V){
     std::vector<ints> color;
     getColor(color, G, V);
-    //return color.size();
+  //  return color.size();
     //advanced upper bound
     int UB=color.size();
     //std::cout<<"color"<<UB<<std::endl;
@@ -123,7 +123,6 @@ int MaxCLQ::esti(const Graph& G, const ints& V){
             inconsSets += getLooseSet(G, tested, color, UB, pr.second);
         }
     }
-   // std::cout<<"inconsSets"<<inconsSets<<std::endl;
     return UB-inconsSets;
 }
 
