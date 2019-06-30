@@ -16,7 +16,11 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
     currentClique.assign(n, 0);
     currentMaxClique.clear();
     inC.assign(n, false);
+    isDeleted.assign(n, false);
+    isForbidden.assign(n, false);
     C.resize(n);
+    order.assign(n, 0);
+    cnt = 0;
 
     // calculate L
     std::vector<int> deg(n, 0);
@@ -30,22 +34,30 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
     for (int i = 0; i < n; ++i) {
         int u = min_element(deg.begin(), deg.end()) - deg.begin();
         deg[u] = INT_MAX, col[i] = std::min(i + 1, col[i]);
-        V[i] = u;
+        V[n - i - 1] = u;
+        order[u] = n - i - 1;
+        // V[i] = u;
         for (int v = 0; v < n; ++v)
             if (G[u][v]) --deg[v];
     }
 
     REFMC(0, V, col);
-
+    std::cerr << "Iteration num: " << cnt << std::endl;
     std::sort(currentMaxClique.begin(), currentMaxClique.end());
     
     return currentMaxClique;
 }
 
+bool BBMCX::cmp(int i, int j) {
+    return order[i] < order[j];
+}
+
 void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &color) {
+    ++cnt;
+    // if (cnt % 10000 == 0) cout << cnt << endl;
     for (int i = len(L) - 1; i >= 0 && s + color[i] > len(currentMaxClique); --i) {
         int u = L[i];
-        std::vector<int> newS, newL;
+        std::vector<int> newL;
         
         // calculate new candidate set
         for (auto v : L) if (v != u && G[u][v]) newL.push_back(v);
@@ -63,7 +75,7 @@ void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &colo
         }
 
         std::vector<int> color(len(newL), 0);
-        calcColor(newL, color, len(currentClique) - (s + 1));
+        calcColor(newL, color, len(currentMaxClique) - (s + 1) + 1);
         // return;
         // cout << u << ' ' << len(newL) << ' ' << color[0] << ' ' << endl;
         REFMC(s + 1, newL, color);
@@ -71,39 +83,51 @@ void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &colo
 }
 
 void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k) {
-    // for (int &col : color) col = len(L);
+    static std::vector<int> U, V, F;
 
-    static std::vector<int> U, V;
     U = L;
 
-    int t = len(L), cnt = 0, c = 0;
+    std::sort(U.begin(), U.end(), [&](const int &i, const int &j) {
+        return order[i] < order[j];
+    });
 
+    int t = len(L),
+        cnt = 0, c = 0;
+
+    for (int u : L) isDeleted[u] = false;
     for (c = 0; U.size(); ++c) {
+
+        for (int i = 0; i < len(U) - 1; ++i)
+            assert(order[U[i]] < order[U[i + 1]]);
+
+        isForbidden[c] = false;
         for (int u : U) inC[u] = true;
         for (int j = 0; j < len(U); ++j) if (inC[U[j]]) {
             int u = U[j];
             bool flag = false;
             if (c + 1 >= k) {
                 // recolor
-                flag = reColor(u, k);
+                flag = reColorIC(u, k);
             }
             if (flag == false) {
-                for (int k = j + 1; k < len(U); ++k) {
-                    if (G[u][U[k]]) inC[U[k]] = false;
+                for (int t = j + 1; t < len(U); ++t) {
+                    if (G[u][U[t]]) inC[U[t]] = false;
                 }
-            } else inC[U[k]] = false;
+            } else inC[u] = false, isDeleted[u] = true, assert(false);
         }
 
         V.clear(), C[c].clear(); 
         for (int u : U)
             if (inC[u]) C[c].push_back(u);
-            else V.push_back(u); 
+            else if (!isDeleted[u]) V.push_back(u);
         U = V;
     }
 
     for (int i = 0; i < c; ++i)
         for (int u : C[i])
             L[cnt] = u, color[cnt++] = i + 1;
+    assert(cnt == t);
+    L.resize(cnt), color.resize(cnt);
     // for (auto u : L) cout << u << ' '; cout << endl;
 }
 
@@ -138,6 +162,53 @@ bool BBMCX::reColor(int u, int k) {
         } else if (v == -1) {
             C[c1].push_back(u);
             return true;
+        }
+    }
+
+    return false;
+}
+
+bool BBMCX::reColorIC(int u, int k) {
+    for (int c1 = 0; c1 < k - 1; ++c1) {
+        if (isForbidden[c1]) continue;
+        int v = -1;
+        for (int t : C[c1])
+            if (G[u][t]) {
+                if (v != -1) {
+                    v = -2;
+                    break;
+                } else {
+                    v = t;
+                }
+            }
+        
+        if (v >= 0) {
+            for (int c2 = c1 + 1; c2 < k - 1; ++c2) {
+                if (isForbidden[c2]) continue;
+                bool flag = true;
+                for (int t : C[c2])
+                    if (G[v][t] || G[u][t]) {
+                        flag = false;
+                        break;
+                    }
+                if (flag) {
+                    isForbidden[c1] = isForbidden[c2] = true;
+                    return true;
+                }            
+           } 
+           for (int c2 = 0; c2 < c1; ++c2) {
+                if (isForbidden[c2]) continue;
+                bool flag = true;
+                for (int t : C[c2])
+                    if (G[v][t] || G[u][t]) {
+                        flag = false;
+                        break;
+                    }
+                if (flag) {
+                    isForbidden[c1] = isForbidden[c2] = true;
+                    return true;
+                }            
+           } 
         }
     }
 
