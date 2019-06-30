@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -14,6 +15,23 @@ int main(int argc, char **argv) {
         int u = rand() % N;
         int v = rand() % N;
         G[u][v] = true;
+=======
+#include<cstdio>
+#include<cstdlib>
+bool e[1000][1000];
+int main(){
+    int n=30,m=0;
+    for(int i=1;i<=n;++i){
+        for(int j=i+1;j<=n;++j){
+            if(rand()%4<=2)e[i][j]=true,++m;
+        }
+    }
+    printf("p edge %d %d\n", n, m);
+    for(int i=1;i<=n;++i){
+        for(int j=i+1;j<=n;++j){
+            if(e[i][j])printf("e %d %d\n",i,j);
+        }
+>>>>>>> f62743e95535f8187f7bdb5ba5e0b030662eac57
     }
 
     int cnt = 0;
