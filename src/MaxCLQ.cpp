@@ -32,12 +32,13 @@ static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
 static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, int cN, int x){
     //try to find a loose set containing color x,return 0: not found 1: found
     //cN: number of colors
+    //std::cout<<"cN"<<cN<<" x"<<x<<std::endl;
     std::vector<ints > __color;
-    ints colorSeq;
+    ints SEQ;
     for(int i = 0;i < cN;++i){
         if(!tested[i]){
             __color.push_back(color[i]);            
-            colorSeq.push_back(i);
+            SEQ.push_back(i);
         }
     }
     ints LooseSet;
@@ -45,22 +46,23 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
     bool flag=false;
     int N=__color.size();
     for(auto v: color[x]){
+        ints ok(cN,0);
+        //std::cout<<"v="<<v<<std::endl;
         std::vector<ints > COLOR = __color;
-        ints SEQ = colorSeq;
+        ok[x]=1;
         for(auto& vec:COLOR){
             int n=vec.size();
             int i,j;
             for(i=0,j=0;i<n;++i){
-                if(G[v][i])vec[j++]=vec[i];
+                if(G[v][vec[i]])vec[j++]=vec[i];
             }
             vec.resize(j);
-            if(vec[0]==v)vec.clear();
         }
         bool f,g;
         while(1){
             f=false;
             for(int i=0;i<N;++i){
-                if(COLOR[i].empty()){
+                if(!ok[SEQ[i]]&&COLOR[i].empty()){
                     LooseSet.push_back(SEQ[i]);
                     f=true;break;
                 }
@@ -69,6 +71,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
             g=false;
             for(int i=0;i<N;++i){
                 if(COLOR[i].size()==1){
+                    ok[SEQ[i]]=1;
                     LooseSet.push_back(SEQ[i]);
                     g=true;
                     int v=COLOR[i][0];
@@ -76,10 +79,9 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
                         int n=vec.size();
                         int i,j;
                         for(i=0,j=0;i<n;++i){
-                            if(G[v][i])vec[j++]=vec[i];
+                            if(G[v][vec[i]])vec[j++]=vec[i];
                         }
                         vec.resize(j);
-                        if(vec[0]==v)vec.clear();
                     }
                 }
             }
@@ -90,6 +92,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
             break;
         }
     }
+    tested[x]=true;
     if(flag)return 0;
     else{
         for(auto x:LooseSet){
@@ -101,9 +104,10 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
 int MaxCLQ::esti(const Graph& G, const ints& V){
     std::vector<ints> color;
     getColor(color, G, V);
-    return color.size();
+    //return color.size();
     //advanced upper bound
     int UB=color.size();
+    //std::cout<<"color"<<UB<<std::endl;
     ints tested(UB, 0);
     std::vector<ints> __color;
     std::vector<std::pair<int, int> > seq;
@@ -119,6 +123,7 @@ int MaxCLQ::esti(const Graph& G, const ints& V){
             inconsSets += getLooseSet(G, tested, color, UB, pr.second);
         }
     }
+   // std::cout<<"inconsSets"<<inconsSets<<std::endl;
     return UB-inconsSets;
 }
 
@@ -141,12 +146,13 @@ ints MaxCLQ::intersect(const ints& A, const ints& B){
 }
 
 void MaxCLQ::search(const Graph &G, ints C, ints V){
-    //std::cout<<C.size()<<" "<<V.size()<<std::endl;
+   // std::cout<<C.size()<<" "<<V.size()<<std::endl;
     if (V.empty()){ 
         update(C);
         return;
     }
     int ub = C.size() + esti(G,V);
+    //std::cout<<"UB=="<<ub<<std::endl;
     if (ub <= LB) return;
     int v = G.mindeg(V);
     C.push_back(v);
