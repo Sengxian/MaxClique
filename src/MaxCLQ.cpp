@@ -1,10 +1,14 @@
 #include "MaxCLQ.h"
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <set>
+int step=0;
 ints MaxCLQ::getMaxClique(const Graph &G){
     ints V;
     for(int i=0;i<G.n;++i)V.push_back(i);
     search(G,ints(0),V);
+    std::cout<<step<<std::endl;
     return maxClique;
 }
 
@@ -29,6 +33,86 @@ static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
         }
     }
 }
+
+static int getLooseSet(const Graph &G, const ints& Vec,ints& tested, std::vector<ints > &color, int cN, int x){
+    //try to find a loose set containing color x,return 0: not found 1: found
+    //cN: number of colors
+    std::map<int, std::set<int> >  __color;
+    ints col(G.n,0);
+    for(int i = 0;i < cN;++i){
+        if(!tested[i]){
+            __color[i]=std::set<int>(color[i].begin(),color[i].end());
+            for(auto x:color[i]){
+                col[x]=i;
+            }
+        }
+    }
+    ints V;
+    for(auto v: Vec){
+        if(!tested[col[v]])V.push_back(v);
+    }
+    ints LooseSet;
+    LooseSet.push_back(x);
+
+    bool flag=false;
+    for(auto v: color[x]){
+        ints ok(cN,0);
+        std::map<int, std::set<int> > COLOR = __color;
+        ok[x]=1;
+        for(auto i:V){
+            if(!G[i][v])COLOR[col[i]].erase(i);
+        }
+        COLOR.erase(x);
+        bool f,g;
+        while(1){
+            f=false;
+            int tmp=-1;
+            for(auto &PAIR:COLOR){
+                if(!ok[PAIR.first]&&PAIR.second.empty()){
+                    LooseSet.push_back(PAIR.first);
+                    tmp=PAIR.first;
+                    f=true;break;
+                }
+            }
+            if(f){
+                COLOR.erase(tmp);
+                break;
+            }
+            g=false;
+            tmp=-1;
+            for(auto &PAIR:COLOR){
+                if(PAIR.second.size()==1){
+                    tmp=PAIR.first;
+                    ok[PAIR.first]=1;
+                    LooseSet.push_back(PAIR.first);
+                    g=true;
+                    int v=*(PAIR.second.begin());
+                    for(auto i:V){
+                       if(!G[i][v])COLOR[col[i]].erase(i);
+                    }
+                    break;  
+                }
+            }
+            if(g) COLOR.erase(tmp);
+            else break;
+
+        }
+        if(!f){
+            flag=true;
+            break;
+        }
+    }
+
+    tested[x]=true;
+    if(flag)return 0;
+    else{
+        for(auto x:LooseSet){
+            tested[x]=true;
+        }
+        return 1;
+    }
+}
+
 static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, int cN, int x){
     //try to find a loose set containing color x,return 0: not found 1: found
     //cN: number of colors
@@ -83,6 +167,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
                         }
                         vec.resize(j);
                     }
+                    break;  
                 }
             }
             if(!g)break;
@@ -101,10 +186,11 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
         return 1;
     }
 }
+
 int MaxCLQ::esti(const Graph& G, const ints& V){
     std::vector<ints> color;
     getColor(color, G, V);
-  //  return color.size();
+    return color.size();
     //advanced upper bound
     int UB=color.size();
     //std::cout<<"color"<<UB<<std::endl;
@@ -120,7 +206,8 @@ int MaxCLQ::esti(const Graph& G, const ints& V){
     int inconsSets = 0;//inconsistent sets
     for(auto pr : seq){
         if(!tested[pr.second]){
-            inconsSets += getLooseSet(G, tested, color, UB, pr.second);
+//            inconsSets += getLooseSet(G, tested, color, UB, pr.second);
+            inconsSets += getLooseSet(G,V, tested, color, UB, pr.second);
         }
     }
     return UB-inconsSets;
@@ -133,7 +220,6 @@ void MaxCLQ::update(ints &C){
         maxClique=C;
     }
 }
-
 ints MaxCLQ::intersect(const ints& A, const ints& B){
     ints C;
     for(ints::const_iterator pt1=A.begin(),pt2=B.begin();pt1!=A.end()&&pt2!=B.end();){
@@ -145,7 +231,9 @@ ints MaxCLQ::intersect(const ints& A, const ints& B){
 }
 
 void MaxCLQ::search(const Graph &G, ints C, ints V){
+ //   std::cout<<cnt<<std::endl;
    // std::cout<<C.size()<<" "<<V.size()<<std::endl;
+   ++step;
     if (V.empty()){ 
         update(C);
         return;

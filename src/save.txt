@@ -1,0 +1,30 @@
+int N=V.size();
+    ints Deg(N,0);
+    for(int i=0;i<N;++i){
+        for(int j=0;j<N;++j){
+            if(G[V[i]][V[j]])Deg[i]++;
+        }
+    }
+    std::vector<std::pair<int,int> > SEQ;
+    for(int i=0;i<N;++i)SEQ.push_back(std::make_pair(Deg[i],i));
+    sort(SEQ.begin(),SEQ.end());
+    for(auto&& pr:SEQ){
+        bool flag=false;
+        int x=V[pr.second];
+        for(auto& vec:color){
+            flag=true;
+            for(auto&& p:vec){
+                if(G[p][x]){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag){
+                vec.push_back(x);
+                break;
+            }
+        }
+        if(!flag){
+            color.push_back(ints(1,x));
+        }
+    }
