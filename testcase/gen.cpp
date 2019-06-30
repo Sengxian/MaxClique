@@ -9,9 +9,9 @@ const int MAXN = 200;
 bool G[MAXN][MAXN];
 
 int main(int argc, char **argv) {
-    srand(time(NULL));
+    srand(time(NULL) ^ clock());
     int N = atoi(argv[1]);
-    for (int i = 0; i < N * 5; ++i) {
+    for (int i = 0; i < N * 6; ++i) {
         int u = rand() % N;
         int v = rand() % N;
         G[u][v] = true;
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
         for (int j = 0; j < i; ++j)
             if (!G[i][j]) cnt++;
     
-    cout << "p " << N << ' ' << cnt << endl;
+    cout << "p edge " << N << ' ' << cnt << endl;
     for (int i = 0; i < N; ++i)
         for (int j = 0; j < i; ++j)
             if (!G[i][j])
