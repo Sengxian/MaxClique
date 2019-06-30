@@ -49,7 +49,7 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
             if (G[u][v]) --deg[v];
     }
 
-    print(V, "V: ", 1);
+    // print(V, "V: ", 1);
 
     REFMC(0, V, col);
     std::cerr << "Iteration num: " << cnt << std::endl;
@@ -65,6 +65,13 @@ bool BBMCX::cmp(int i, int j) {
 void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &color) {
     ++cnt;
     std::vector<int> newL, col;
+
+/*
+    cout << "Clique: ";
+    for (int i = 0; i < s; ++i) cout << currentClique[i] + 1 << ' '; cout << endl;
+    print(L, "L: ", 1);
+    print(color, "color: ");
+*/
 
     for (int i = len(L) - 1; i >= 0 && s + color[i] > len(currentMaxClique); --i) {
         int u = L[i];
@@ -106,30 +113,20 @@ void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k) {
     int t = len(L),
         cnt = 0, c = 0;
 
-    for (int u : L) isDeleted[u] = false;
-    for (c = 0; U.size(); ++c) {
+    for (c = 0; U.size(); ++c, U = V) {
         isForbidden[c] = false;
         for (int u : U) inC[u] = true;
-        for (int j = 0; j < len(U); ++j) if (inC[U[j]]) {
-            int u = U[j];
-            bool flag = false;
-            if (c + 1 >= k) {
-                // recolor
-                flag = reColorIC(u, k);
-            }
-            if (flag == false) {
-                for (int t = j + 1; t < len(U); ++t) {
-                    if (G[u][U[t]]) inC[U[t]] = false;
-                }
-            } else inC[u] = false, isDeleted[u] = true;
-        }
-
         V.clear(), C[c].clear(); 
-        for (int u : U)
-            if (inC[u]) C[c].push_back(u);
-            else if (!isDeleted[u]) V.push_back(u);
-        // print(C[c], "Color: ", 1);
-        U = V;
+        for (int j = 0; j < len(U); ++j) {
+            int u = U[j];
+            if (inC[u]) {
+                if (c + 1 < k || !reColorIC(u, k)) {
+                    C[c].push_back(u);
+                    for (int t = j + 1; t < len(U); ++t)
+                        inC[U[t]] &= !G[u][U[t]];
+                } else inC[u] = false;
+            } else V.push_back(u);
+        }
     }
 
     for (int i = 0; i < c; ++i)

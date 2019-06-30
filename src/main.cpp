@@ -12,7 +12,10 @@ int main(int argc, char** argv) {
         cout << "Please input testcase name, e.g. ./main brock200_0" << endl;
         return 0;
     } else {
-        G.loadGraph((string("../testcase/") + string(argv[1]) + string(".clq")).data());
+        if (!G.loadGraph((string("../testcase/") + string(argv[1]) + string(".clq")).data())) {
+            cout << "Cannot read data!" << endl;
+            return 0;
+        }
     }
     
     // Estimate runtime
