@@ -10,7 +10,7 @@ class BBMCX : public Strategy {
   private:
     std::vector<int> currentClique, currentMaxClique;
     std::vector<std::vector<int> > C;
-    std::vector<bool> inC, isDeleted, isForbidden;
+    std::vector<int> inC, isDeleted, isForbidden;
     Graph G;
     int cnt;
 

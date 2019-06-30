@@ -9,6 +9,11 @@
 using std::cout;
 using std::endl;
 
+void print(const std::vector<int> &vec, const char *str = "", int del = 0) {
+    cout << str;
+    for (auto x : vec) cout << x + del << ' '; cout << endl;
+}
+
 std::vector<int> BBMCX::getMaxClique(const Graph &G) {
     int n = G.n;
 
@@ -32,7 +37,10 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
 
     // smallest degree-last
     for (int i = 0; i < n; ++i) {
-        int u = min_element(deg.begin(), deg.end()) - deg.begin();
+        int u = -1, mn = INT_MAX;
+        for (int j = 0; j < n; ++j)
+            if (deg[j] <= mn) u = j, mn = deg[j];
+        // print(deg, "deg ");
         deg[u] = INT_MAX, col[i] = std::min(i + 1, col[i]);
         V[n - i - 1] = u;
         order[u] = n - i - 1;
@@ -40,6 +48,8 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
         for (int v = 0; v < n; ++v)
             if (G[u][v]) --deg[v];
     }
+
+    print(V, "V: ", 1);
 
     REFMC(0, V, col);
     std::cerr << "Iteration num: " << cnt << std::endl;
@@ -54,31 +64,29 @@ bool BBMCX::cmp(int i, int j) {
 
 void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &color) {
     ++cnt;
-    // if (cnt % 10000 == 0) cout << cnt << endl;
+    std::vector<int> newL, col;
+
     for (int i = len(L) - 1; i >= 0 && s + color[i] > len(currentMaxClique); --i) {
         int u = L[i];
-        std::vector<int> newL;
-        
+
+        newL.clear(), col.clear(); 
         // calculate new candidate set
-        for (auto v : L) if (v != u && G[u][v]) newL.push_back(v);
+        for (int j = 0; j < i; ++j) if (G[u][L[j]]) newL.push_back(L[j]);
 
         currentClique[s] = u;
-
-        if (len(newL) == 0) {
-            // update max clique
-            if (s + 1 > len(currentMaxClique)) {
-                currentMaxClique.assign(s + 1, 0);
-                for (int j = 0; j < s + 1; ++j)
-                    currentMaxClique[j] = currentClique[j];
-            }
-            continue;
+        
+        // update max clique
+        if (s + 1 > len(currentMaxClique)) {
+            currentMaxClique.assign(s + 1, 0);
+            for (int j = 0; j < s + 1; ++j)
+                currentMaxClique[j] = currentClique[j];
         }
 
-        std::vector<int> color(len(newL), 0);
-        calcColor(newL, color, len(currentMaxClique) - (s + 1) + 1);
-        // return;
-        // cout << u << ' ' << len(newL) << ' ' << color[0] << ' ' << endl;
-        REFMC(s + 1, newL, color);
+        if (len(newL) == 0) continue;
+
+        col.assign(len(newL), 0);
+        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1);
+        REFMC(s + 1, newL, col);
     }
 }
 
@@ -91,15 +99,15 @@ void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k) {
         return order[i] < order[j];
     });
 
+    // print(U, "L: ", 1);
+    // cout << k << endl;
+    // print(color, "color: ");
+
     int t = len(L),
         cnt = 0, c = 0;
 
     for (int u : L) isDeleted[u] = false;
     for (c = 0; U.size(); ++c) {
-
-        for (int i = 0; i < len(U) - 1; ++i)
-            assert(order[U[i]] < order[U[i + 1]]);
-
         isForbidden[c] = false;
         for (int u : U) inC[u] = true;
         for (int j = 0; j < len(U); ++j) if (inC[U[j]]) {
@@ -113,22 +121,22 @@ void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k) {
                 for (int t = j + 1; t < len(U); ++t) {
                     if (G[u][U[t]]) inC[U[t]] = false;
                 }
-            } else inC[u] = false, isDeleted[u] = true, assert(false);
+            } else inC[u] = false, isDeleted[u] = true;
         }
 
         V.clear(), C[c].clear(); 
         for (int u : U)
             if (inC[u]) C[c].push_back(u);
             else if (!isDeleted[u]) V.push_back(u);
+        // print(C[c], "Color: ", 1);
         U = V;
     }
 
     for (int i = 0; i < c; ++i)
         for (int u : C[i])
             L[cnt] = u, color[cnt++] = i + 1;
-    assert(cnt == t);
+
     L.resize(cnt), color.resize(cnt);
-    // for (auto u : L) cout << u << ' '; cout << endl;
 }
 
 bool BBMCX::reColor(int u, int k) {
@@ -174,7 +182,7 @@ bool BBMCX::reColorIC(int u, int k) {
         int v = -1;
         for (int t : C[c1])
             if (G[u][t]) {
-                if (v != -1) {
+                if (v >= 0) {
                     v = -2;
                     break;
                 } else {
@@ -187,7 +195,7 @@ bool BBMCX::reColorIC(int u, int k) {
                 if (isForbidden[c2]) continue;
                 bool flag = true;
                 for (int t : C[c2])
-                    if (G[v][t] || G[u][t]) {
+                    if (G[v][t] && G[u][t]) {
                         flag = false;
                         break;
                     }
@@ -200,7 +208,7 @@ bool BBMCX::reColorIC(int u, int k) {
                 if (isForbidden[c2]) continue;
                 bool flag = true;
                 for (int t : C[c2])
-                    if (G[v][t] || G[u][t]) {
+                    if (G[v][t] && G[u][t]) {
                         flag = false;
                         break;
                     }

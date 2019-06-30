@@ -10,7 +10,7 @@ void Estimator::estimate(Strategy *stg, const Graph &G) {
 
     std::cout << maxClique.size() << std::endl;
     for (int i = 0; i < (int)maxClique.size(); ++i)
-        std::cout << maxClique[i] << (i + 1 == (int)maxClique.size() ? '\n' : ' ');
+        std::cout << maxClique[i] + 1 << (i + 1 == (int)maxClique.size() ? '\n' : ' ');
 
     Validator validator;
 
