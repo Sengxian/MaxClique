@@ -22,7 +22,7 @@ ints MaxCLQ::getMaxClique(const Graph &G){
     for(int i=0;i<G.n;++i)V.push_back(i);
     sort(V.begin(),V.end(),cmp);
     search(G,ints(0),V);
-    std::cout<<step<<std::endl;
+    std::cerr<<step<<std::endl;
     return maxClique;
 }
 static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
