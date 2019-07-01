@@ -5,6 +5,7 @@
 #include "BBMCX.h"
 #include "BBMCX_BITSET.h"
 #include "Estimator.h"
+#include "dls.h"
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -23,5 +24,6 @@ int main(int argc, char** argv) {
     Estimator estimator;
     if(argc==2)estimator.estimate(new BBMCX_BITSET(), G);
     else if(argc==3)estimator.estimate(new MaxCLQ(), G);
+    else if(argc==4)estimator.estimate(new DLS(), G);
     return 0;
 }
