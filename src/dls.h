@@ -4,8 +4,12 @@
 //typedef std::pair<ints, int> intsi;
 class DLS:public Strategy{
 public:
+    DLS():maxClique(1),LB(0){}
     ints getMaxClique(const Graph &G);
 private:
+    dls_set maxClique; // current maximum clique, lower bound
+    int LB;
+    void update(dls_set &C);
     int PD,PDcnt;//penalty delay;
     int numSteps;
     ints penalty;

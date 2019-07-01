@@ -12,12 +12,12 @@ public:
     dls_set(int n):lst(0),ind(0),N(n),sz(0){
         lst = new int[n];
         ind = new int[n];
-        memset(ind,-1,sizeof(ind));
+        memset(ind,-1,sizeof(int)*N);
     }
     dls_set(const Graph &G, const dls_set &C):lst(0),ind(0),N(G.n),sz(0){
         lst = new int[G.n];
         ind = new int[G.n];
-        memset(ind, -1, sizeof(ind));
+        memset(ind, -1, sizeof(int)*N);
         for(int i=0;i<G.n;++i){
             bool flag=true;
             for(int j=0;j<C.sz;++j){
@@ -35,7 +35,7 @@ public:
     dls_set(const Graph &G, const dls_set &C, int t):lst(0),ind(0),N(G.n),sz(0){
         lst = new int[G.n];
         ind = new int[G.n];
-        memset(ind, -1, sizeof(ind));
+        memset(ind, -1, sizeof(int)*N);
         for(int i=0;i<G.n;++i){
             int cnt=0;
             for(int j=0;j<C.sz;++j){
@@ -79,8 +79,8 @@ public:
 
         lst=new int[B.N];
         ind=new int[B.N];
-        memcpy(lst,B.lst,sizeof(lst));
-        memcpy(ind,B.ind,sizeof(ind));
+        memcpy(lst,B.lst,sizeof(int)*N);
+        memcpy(ind,B.ind,sizeof(int)*N);
     }
     dls_set& operator =(dls_set& B){
         if(lst)delete lst;
@@ -88,13 +88,18 @@ public:
         N=B.N;sz=B.sz;
         lst=new int[B.N];
         ind=new int[B.N];
-        memcpy(lst,B.lst,sizeof(lst));
-        memcpy(ind,B.ind,sizeof(ind));
+        memcpy(lst,B.lst,sizeof(int)*N);
+        memcpy(ind,B.ind,sizeof(int)*N);
         return *this;
     }
     void clear(){
-        for(int i=0;i<sz;++i)ind[lst[sz]]=0;
+     //   printf("enter\n");
+        for(int i=0;i<sz;++i){
+            //printf("%d\n",lst[]);
+            ind[lst[i]]=-1;
+        }
         sz=0;
+        //printf("exit");
     }
 };
 #endif

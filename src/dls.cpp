@@ -1,11 +1,14 @@
 #include "dls.h"
 #include <cstdlib>
+#include <cstdio>
 static int Rand(int n){
     return rand()%n;
 }
 ints DLS::getMaxClique(const Graph &G){
-    dls_set result=DLS_MC(G,30,2,100000);
+    dls_set result=DLS_MC(G,1000000,2,100000);
+    //printf("%d\n",result.sz);
     return ints(result.lst,result.lst+result.sz);   
+    
 }
 void DLS::initPenalty(int n){
     penalty.resize(n);
@@ -24,10 +27,16 @@ void DLS::updatePenalty(){
 }
 bool DLS::expand(const Graph &G, dls_set& C, int &v){//return true if at least one point is added
     dls_set N(G,C);++T;
+   // for(int i=0;i<C.sz;++i)printf("%d ",C.lst[i]);printf("\n");
+     //   for(int i=0;i<G.n;++i)printf("%d ",C.ind[i]);printf("\n");
+       // while(1);
     if(N.sz==0)return false;
     while(N.sz != 0){
-        v=MinPenalty(N);
-        C.add(v);
+       // printf("sz==========%d\n",C.sz);
+       // for(int i=0;i<C.sz;++i)printf("%d ",C.lst[i]);printf("\n");
+       // for(int i=0;i<G.n;++i)printf("%d ",C.ind[i]);printf("\n");
+        v=MinPenalty(N);//printf("add%d\n",v);
+        C.add(v);//printf("sz====%d\n",C.sz);
         ++numSteps;
         N.del_not_neigh(G,v);
     }
@@ -59,6 +68,12 @@ void DLS::plateauSearch(const Graph &G, dls_set &C, int C_, int &v){
         NL=tmp;
     }
 }
+void DLS::update(dls_set& A){
+    if(A.sz>LB){
+        LB=A.sz;
+        maxClique=A;
+    }
+}
 dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){//pd: penalty delay
     //return the max clique it can find with size<=target
 
@@ -70,16 +85,22 @@ dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){//pd: pena
     initPenalty(G.n);
     PD=pd;PDcnt=pd;
  
-    while(numSteps < maxSteps){
-        expand(G,C,v);
-        if(C.sz >= target)return C;
+    while(numSteps < maxSteps){//printf("%d\n",numSteps);
+        expand(G,C,v);//printf("expanded%d\n",C.sz);
+        
+       
+        //if(C.sz >= target)return C;
         //C_ = C;
         int C_=C.sz;
-        plateauSearch(G, C, C_, v);
-        while(expand(G, C, v)){
+        plateauSearch(G, C, C_, v);//printf("plateau\n"); 
+        while(expand(G, C, v)){//printf("fuck\n");
             if(C.sz >= target)return C;
+            //printf("...sz==%d\n",C.sz);
             plateauSearch(G, C, C_, v);
+        //    printf("???sz==%d\n",C.sz);
         }
+        //printf("%d\n",C.sz);
+        update(C);
         updatePenalty();
         if(pd > 1){
             C.clear();C.add(v);
@@ -88,6 +109,6 @@ dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){//pd: pena
         //    rearrange(G,C,v);
         }
     }
-
-    return C;
+    return maxClique;
+    //return C;
 }
