@@ -3,8 +3,6 @@
 //Branch & Bound
 #include "Strategy.h"
 
-typedef std::vector<int> ints;
-
 class MaxCLQ : public Strategy {
   public:
     MaxCLQ() : maxClique(ints(0)), LB(0) {}
