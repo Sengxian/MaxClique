@@ -1,4 +1,4 @@
-#include "BBMCX.h"
+#include "BBMCX_BITSET.h"
 #include <algorithm>
 #include <numeric>
 #include <iostream>
@@ -6,27 +6,31 @@
 #include <cassert>
 #define len(x) ((int)x.size())
 
-using std::cout;
-using std::endl;
-
-void print(const std::vector<int> &vec, const char *str = "", int del = 0) {
-    cout << str;
-    for (auto x : vec) cout << x + del << ' '; cout << endl;
+void BBMCX_BITSET::print(const std::vector<int> &vec, const char *str, int del) {
+    std::cout << str;
+    for (auto x : vec) std::cout << x + del << ' '; std::cout << std::endl;
 }
 
-std::vector<int> BBMCX::getMaxClique(const Graph &G) {
+std::vector<int> BBMCX_BITSET::getMaxClique(const Graph &G) {
     int n = G.n;
 
     this->G = G;
     currentClique.assign(n, 0);
     currentMaxClique.clear();
-    inC.assign(n, false);
     isForbidden.assign(n, false);
     C.resize(n);
     order.assign(n, 0);
     newOrder.assign(n, 0);
     cnt = 0;
     cnt1 = 0;
+
+    // init bitset
+    Gb.resize(n), GbR.resize(n);
+    Cb.resize(n);
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            if (G[i][j]) Gb[i].set(j), GbR[i].reset(j);
+            else Gb[i].reset(j), GbR[i].set(j);
 
     // calculate L
     deg.assign(n, 0);
@@ -62,7 +66,7 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
     return currentMaxClique;
 }
 
-void BBMCX::greedy() {
+void BBMCX_BITSET::greedy() {
     std::vector<int> V, U;
     for (int i = 0; i < G.n; ++i) V.push_back(i);
     while (V.size()) {
@@ -79,11 +83,11 @@ void BBMCX::greedy() {
     }
 }
 
-bool BBMCX::cmp(int i, int j) {
+bool BBMCX_BITSET::cmp(int i, int j) {
     return order[i] < order[j];
 }
 
-void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &color) {
+void BBMCX_BITSET::REFMC(int s, const std::vector<int> &L, const std::vector<int> &color) {
     ++cnt;
 
     // cout << "Clique: ";
@@ -120,7 +124,7 @@ void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &colo
         if (len(newL) == 0) continue;
 
         col.assign(len(newL), 0);
-        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 2);
+        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 4);
         REFMC(s + 1, newL, col);
     }
 }
@@ -129,7 +133,7 @@ inline bool tension(int &a, const int &b) {
     return b <= a ? a = b, true : false;
 }
 
-void BBMCX::calcOrder(const std::vector<int> &L) {
+void BBMCX_BITSET::calcOrder(const std::vector<int> &L) {
     for (int u : L) deg[u] = 0;
 
     for (int i = 0; i < len(L); ++i)
@@ -147,7 +151,7 @@ void BBMCX::calcOrder(const std::vector<int> &L) {
     }
 }
 
-void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k, bool reCalc) {
+void BBMCX_BITSET::calcColor(std::vector<int> &L, std::vector<int> &color, int k, bool reCalc) {
     static std::vector<int> U, V, F;
 
     U = L;
@@ -165,15 +169,14 @@ void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k, bool 
 
     for (int c = 0, cnt = 0; U.size(); ++c, U = V) {
         isForbidden[c] = false;
-        for (int u : U) inC[u] = true;
-        V.clear(), C[c].clear(); 
+        in.set();
+        V.clear(), C[c].clear(), Cb[c].reset();
         for (int j = 0; j < len(U); ++j) {
             int u = U[j];
-            if (inC[u]) {
+            if (in[u]) {
                 if (c + 1 < k || !reColorIC(u, k)) {
                     C[c].push_back(u), L[cnt] = u, color[cnt++] = c + 1;
-                    for (int t = j + 1; t < len(U); ++t)
-                        inC[U[t]] &= !G[u][U[t]];
+                    Cb[c].set(u), in &= GbR[u];
                 } else {
                     // successfully reColor
                     L[cnt] = u, color[cnt++] = -1;
@@ -183,78 +186,24 @@ void BBMCX::calcColor(std::vector<int> &L, std::vector<int> &color, int k, bool 
     }
 }
 
-bool BBMCX::reColor(int u, int k) {
-    for (int c1 = 0; c1 < k - 2; ++c1) {
-        int v = -1;
-        for (int t : C[c1])
-            if (G[u][t]) {
-                if (v != -1) {
-                    v = -2;
-                    break;
-                } else {
-                    v = t;
-                }
-            }
-        
-        if (v >= 0) {
-            for (int c2 = c1 + 1; c2 < k - 1; ++c2) {
-                bool flag = true;
-                for (int t : C[c2])
-                    if (G[v][t]) {
-                        flag = false;
-                        break;
-                    }
-                if (flag) {
-                    C[c2].push_back(v);
-                    C[c1].push_back(u);
-                    C[c1].erase(std::find(C[c1].begin(), C[c1].end(), v));
-                    return true;
-                }            
-           } 
-        } else if (v == -1) {
-            C[c1].push_back(u);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool BBMCX::reColorIC(int u, int k) {
+bool BBMCX_BITSET::reColorIC(int u, int k) {
     for (int c1 = 0; c1 < k - 1; ++c1) if (!isForbidden[c1]) {
-        int v = -1;
-        for (int t : C[c1]) if (G[u][t]) {
-            if (v >= 0) {
-                v = -2;
+        if ((Cb[c1] & Gb[u]).count() == 1) {
+            int v = -1;
+            for (int t : C[c1]) if (G[u][t]) {
+                v = t;
                 break;
-            } else v = t;
-        }
-        
-        if (v >= 0) {
-            for (int c2 = c1 + 1; c2 < k - 1; ++c2) if (!isForbidden[c2]) {
-                bool flag = true;
-                for (int t : C[c2])
-                    if (G[u][t] && G[v][t]) {
-                        flag = false;
-                        break;
-                    }
-                if (flag) {
+            }
+            for (int c2 = c1 + 1; c2 < k - 1; ++c2)
+                if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
                     return true;
                 }
-           } 
-           for (int c2 = 0; c2 < c1; ++c2) if (!isForbidden[c2]) {
-                bool flag = true;
-                for (int t : C[c2])
-                    if (G[u][t] && G[v][t]) {
-                        flag = false;
-                        break;
-                    }
-                if (flag) {
+           for (int c2 = 0; c2 < c1; ++c2)
+                if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
                     return true;
                 }            
-           } 
         }
     }
 
