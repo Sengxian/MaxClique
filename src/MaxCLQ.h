@@ -16,7 +16,7 @@ class MaxCLQ : public Strategy {
     void update(ints &C);
     void search(const Graph &G, ints C, ints V);
     int esti(const Graph& G, const ints &V);
-    ints intersect(const ints &A, const ints &B);
+    ints intersect(const ints &A, const Graph&G,int v);
 };
 
 #endif

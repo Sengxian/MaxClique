@@ -38,16 +38,15 @@ bool Graph::loadGraph(const char *filename) {
         return false;
     }
 }
-int Graph::degree(int v)const{
+int Graph::degree(int v, ints &V)const{
     int cnt=0;
-    const ints& V=G[v];
-    for(auto&& x:V)cnt+=x;
+    for(auto x:V)cnt+=G[x][v];
     return cnt;
 }
 int Graph::mindeg(ints &V)const{
     int min=n,v=-1;
     for(auto x:V){
-        int cnt=degree(x);
+        int cnt=degree(x,V);
         if(cnt<min)v=x;
     }
     return v;
