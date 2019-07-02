@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     
     // Estimate runtime
     Estimator estimator;
-    if(argc==2)estimator.estimate(new BBMCX_BITSET(), G);
+    if(argc==2)estimator.estimate(new BBMCX(), G);
     else if(argc==3)estimator.estimate(new MaxCLQ(), G);
     else if(argc==4)estimator.estimate(new DLS(), G);
     return 0;

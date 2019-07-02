@@ -6,7 +6,7 @@ static int Rand(int n){
 }
 ints DLS::getMaxClique(const Graph &G){
     //srand(233);
-    dls_set result=DLS_MC(G,1000000,5,500000);
+    dls_set result=DLS_MC(G,1000000,2,10000);
     //printf("%d\n",result.sz);
     return ints(result.lst,result.lst+result.sz);   
     

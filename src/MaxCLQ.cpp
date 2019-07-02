@@ -202,10 +202,14 @@ void MaxCLQ::search(const Graph &G, ints C, ints V){
     ++S[depth];
     if (V.empty()){ 
         update(C);
+        --depth;
         return;
     }
     int ub = C.size() + esti(G,V);
-    if (ub <= LB) return;
+    if (ub <= LB){ 
+        --depth;
+        return;
+    }
     int v = G.mindeg(V);
     C.push_back(v);
     search(G, C, intersect(V,G,v));
