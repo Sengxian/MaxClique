@@ -54,6 +54,9 @@ int Graph::mindeg(ints &V)const{
 const ints& Graph::operator [] (const int &idx) const {
     return G[idx];
 }
+ints& Graph::operator [] (const int &idx) {
+    return G[idx];
+}
 ints Graph::neighbour(int v)const{
     ints V;
     for(int i=0;i<n;++i)if(G[v][i])V.push_back(i);

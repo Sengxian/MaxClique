@@ -120,7 +120,7 @@ void BBMCX::REFMC(int s, const std::vector<int> &L, const std::vector<int> &colo
         if (len(newL) == 0) continue;
 
         col.assign(len(newL), 0);
-        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 2);
+        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 4);
         REFMC(s + 1, newL, col);
     }
 }

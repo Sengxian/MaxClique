@@ -23,15 +23,9 @@ std::vector<int> BBMCX_BITSET::getMaxClique(const Graph &G) {
     newOrder.assign(n, 0);
     cnt = 0;
     cnt1 = 0;
+    cnt2 = 0;
 
-    // init bitset
-    Gb.resize(n), GbR.resize(n);
-    Cb.resize(n);
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < n; ++j)
-            if (G[i][j]) Gb[i].set(j), GbR[i].reset(j);
-            else Gb[i].reset(j), GbR[i].set(j);
-
+   
     // calculate L
     deg.assign(n, 0);
     for (int i = 0; i < n; ++i)
@@ -57,10 +51,27 @@ std::vector<int> BBMCX_BITSET::getMaxClique(const Graph &G) {
             if (G[u][v]) --deg[v];
     }
 
+    // for (int i = 0; i < n; ++i)
+    //     for (int j = 0; j < n; ++j)
+    //         (this->G)[i][j] = 0;
+    // for (int i = 0; i < n; ++i)
+    //     for (int j = 0; j < n; ++j)
+    //         if (G[i][j]) this->G[order[i]][order[j]] = 1;
+
+     // init bitset
+    Gb.resize(n), GbR.resize(n);
+    Cb.resize(n);
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            if (this->G[i][j]) Gb[i].set(j), GbR[i].reset(j);
+            else Gb[i].reset(j), GbR[i].set(j);
+
     // print(V, "V: ", 1);
     REFMC(0, V, col);
     std::cerr << "Iteration num: " << cnt << std::endl;
     std::cerr << "Iteration num: " << cnt1 << std::endl;
+    std::cerr << "Iteration num: " << cnt2 << std::endl;
+    // for (int &u : currentMaxClique) u = V[u];
     std::sort(currentMaxClique.begin(), currentMaxClique.end());
 
     return currentMaxClique;
@@ -113,18 +124,22 @@ void BBMCX_BITSET::REFMC(int s, const std::vector<int> &L, const std::vector<int
             currentMaxClique.assign(s + 1, 0);
             for (int j = 0; j < s + 1; ++j)
                 currentMaxClique[j] = currentClique[j];
+            // std::cout << s + 1 << std::endl;
+            // for (int j = 0; j < s + 1; ++j)
+            //     std::cout << currentClique[j] << ' ';
+            // std::cout << std::endl;
         }
 
         // calculate new candidate set
 
         newL.clear(), col.clear(); 
-        for (int j = 0; j < i; ++j) if (G[u][L[j]]) newL.push_back(L[j]);
+        for (int j = 0; j < i; ++j, ++cnt2) if (G[u][L[j]]) newL.push_back(L[j]);
         for (int v : proned) if (G[u][v]) newL.push_back(v);
 
         if (len(newL) == 0) continue;
 
         col.assign(len(newL), 0);
-        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 4);
+        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 1);
         REFMC(s + 1, newL, col);
     }
 }
@@ -181,7 +196,7 @@ void BBMCX_BITSET::calcColor(std::vector<int> &L, std::vector<int> &color, int k
                     // successfully reColor
                     L[cnt] = u, color[cnt++] = -1;
                 }
-            } else V.push_back(u);
+            } else V.push_back(u), ++cnt1;
         }
     }
 }
@@ -193,19 +208,19 @@ bool BBMCX_BITSET::reColorIC(int u, int k) {
             for (int t : C[c1]) if (G[u][t]) {
                 v = t;
                 break;
-            }
+            } else ++cnt1;
             for (int c2 = c1 + 1; c2 < k - 1; ++c2)
                 if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
                     return true;
-                }
+                } else cnt1 += isForbidden[c2];
            for (int c2 = 0; c2 < c1; ++c2)
                 if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
                     return true;
-                }            
+                } else cnt1 += isForbidden[c2];
         }
-    }
+    } else ++cnt1;
 
     return false;
 }

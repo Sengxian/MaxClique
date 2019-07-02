@@ -1,6 +1,7 @@
 #ifndef _BBMCX_BITSET_H_
 #define _BBMCX_BITSET_H_
 #include "Strategy.h"
+#include "Bitset.h"
 #include <bitset>
 
 class BBMCX_BITSET : public Strategy {
@@ -8,15 +9,16 @@ class BBMCX_BITSET : public Strategy {
     std::vector<int> getMaxClique(const Graph &G);
     bool cmp(int i, int j);
   private:
-    static const int SIZE = 800;
+    static const int SIZE = 4000;
+    typedef std::bitset<SIZE> bitset;
     std::vector<int> currentClique, currentMaxClique;
     std::vector<std::vector<int> > C;
     std::vector<int> deg, isForbidden;
     std::vector<int> order, newOrder;
-    std::bitset<SIZE> in;
-    std::vector<std::bitset<SIZE> > Cb, Gb, GbR;
+    bitset in;
+    std::vector<bitset> Cb, Gb, GbR;
     Graph G;
-    int cnt, cnt1;
+    int cnt, cnt1, cnt2;
 
     static void print(const std::vector<int> &vec, const char *str = "", int del = 0);
     void greedy();
