@@ -5,7 +5,8 @@ static int Rand(int n){
     return rand()%n;
 }
 ints DLS::getMaxClique(const Graph &G){
-    dls_set result=DLS_MC(G,1000000,2,100000);
+    //srand(233);
+    dls_set result=DLS_MC(G,1000000,5,500000);
     //printf("%d\n",result.sz);
     return ints(result.lst,result.lst+result.sz);   
     
@@ -87,19 +88,21 @@ dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){//pd: pena
  
     while(numSteps < maxSteps){//printf("%d\n",numSteps);
         expand(G,C,v);//printf("expanded%d\n",C.sz);
-        
-       
         //if(C.sz >= target)return C;
         //C_ = C;
         int C_=C.sz;
         plateauSearch(G, C, C_, v);//printf("plateau\n"); 
         while(expand(G, C, v)){//printf("fuck\n");
-            if(C.sz >= target)return C;
             //printf("...sz==%d\n",C.sz);
             plateauSearch(G, C, C_, v);
+            if(C.sz >= target)return C;
         //    printf("???sz==%d\n",C.sz);
+            
         }
         //printf("%d\n",C.sz);
+        for(int i=0;i<C.sz;++i){
+            penalty[C.lst[i]]++;
+        }
         update(C);
         updatePenalty();
         if(pd > 1){
