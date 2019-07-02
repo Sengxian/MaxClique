@@ -128,13 +128,13 @@ void BBMCX_BITSET::REFMC(int s, const std::vector<int> &L, const std::vector<int
         // calculate new candidate set
 
         newL.clear(), col.clear(); 
-        for (int j = 0; j < i; ++j, ++cnt2) if (G[u][L[j]]) newL.push_back(L[j]);
+        for (int j = 0; j < i; ++j) if (G[u][L[j]]) newL.push_back(L[j]);
         for (int v : proned) if (G[u][v]) newL.push_back(v);
 
         if (len(newL) == 0) continue;
 
         col.assign(len(newL), 0);
-        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 1);
+        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 6);
         REFMC(s + 1, newL, col);
     }
 }
@@ -208,12 +208,12 @@ bool BBMCX_BITSET::reColorIC(int u, int k) {
                 if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
                     return true;
-                } else cnt1 += isForbidden[c2];
+                }
            for (int c2 = 0; c2 < c1; ++c2)
                 if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
                     return true;
-                } else cnt1 += isForbidden[c2];
+                }
         }
     } 
 

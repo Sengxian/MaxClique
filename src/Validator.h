@@ -5,7 +5,7 @@
 
 class Validator {
   public:
-    bool check(const Graph &G, std::vector<int> maxClique);
+    bool check(const Graph &G, std::vector<int> maxClique); // check if it's a clique
 };
 
 #endif
