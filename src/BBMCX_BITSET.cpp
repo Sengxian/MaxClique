@@ -24,7 +24,6 @@ std::vector<int> BBMCX_BITSET::getMaxClique(const Graph &G) {
     cnt = 0;
     cnt1 = 0;
     cnt2 = 0;
-
    
     // calculate L
     deg.assign(n, 0);
@@ -92,10 +91,6 @@ void BBMCX_BITSET::greedy() {
             U.push_back(u);
         V = U;
     }
-}
-
-bool BBMCX_BITSET::cmp(int i, int j) {
-    return order[i] < order[j];
 }
 
 void BBMCX_BITSET::REFMC(int s, const std::vector<int> &L, const std::vector<int> &color) {
@@ -196,7 +191,7 @@ void BBMCX_BITSET::calcColor(std::vector<int> &L, std::vector<int> &color, int k
                     // successfully reColor
                     L[cnt] = u, color[cnt++] = -1;
                 }
-            } else V.push_back(u), ++cnt1;
+            } else V.push_back(u);
         }
     }
 }
@@ -208,7 +203,7 @@ bool BBMCX_BITSET::reColorIC(int u, int k) {
             for (int t : C[c1]) if (G[u][t]) {
                 v = t;
                 break;
-            } else ++cnt1;
+            }
             for (int c2 = c1 + 1; c2 < k - 1; ++c2)
                 if (!isForbidden[c2] && (Cb[c2] & Gb[u] & Gb[v]).none()) {
                     isForbidden[c1] = isForbidden[c2] = true;
@@ -220,7 +215,7 @@ bool BBMCX_BITSET::reColorIC(int u, int k) {
                     return true;
                 } else cnt1 += isForbidden[c2];
         }
-    } else ++cnt1;
+    } 
 
     return false;
 }
