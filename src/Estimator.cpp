@@ -14,8 +14,8 @@ void Estimator::estimate(Strategy *stg, const Graph &G) {
 
     Validator validator;
 
-    if (validator.check(G, maxClique)) std::cerr << "Test passed!" << std::endl;
-    else std::cerr << "Failed on test!" << std::endl;
+    // if (validator.check(G, maxClique)) std::cerr << "Test passed!" << std::endl;
+    // else std::cerr << "Failed on test!" << std::endl;
 
     std::cerr << "Time used: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << std::endl;
 }

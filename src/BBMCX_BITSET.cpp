@@ -32,7 +32,7 @@ std::vector<int> BBMCX_BITSET::getMaxClique(const Graph &G) {
             if (G[i][j]) ++deg[i], ++deg[j];
     
     greedy(); // apply greedy algorithm for better pruning
-    std::cerr << "Greedy result: " << currentMaxClique.size() << std::endl;
+    // std::cerr << "Greedy result: " << currentMaxClique.size() << std::endl;
 
     std::vector<int> V(n, 0), col(n, *std::max_element(deg.begin(), deg.end()) + 1);
 
@@ -68,8 +68,8 @@ std::vector<int> BBMCX_BITSET::getMaxClique(const Graph &G) {
     // print(V, "V: ", 1);
     REFMC(0, V, col);
     std::cerr << "Iteration num: " << cnt << std::endl;
-    std::cerr << "Iteration num: " << cnt1 << std::endl;
-    std::cerr << "Iteration num: " << cnt2 << std::endl;
+    // std::cerr << "Iteration num: " << cnt1 << std::endl;
+    // std::cerr << "Iteration num: " << cnt2 << std::endl;
     // for (int &u : currentMaxClique) u = V[u];
     std::sort(currentMaxClique.begin(), currentMaxClique.end());
 
@@ -134,7 +134,7 @@ void BBMCX_BITSET::REFMC(int s, const std::vector<int> &L, const std::vector<int
         if (len(newL) == 0) continue;
 
         col.assign(len(newL), 0);
-        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 6);
+        calcColor(newL, col, len(currentMaxClique) - (s + 1) + 1, s < 5);
         REFMC(s + 1, newL, col);
     }
 }
@@ -163,13 +163,20 @@ void BBMCX_BITSET::calcOrder(const std::vector<int> &L) {
 
 void BBMCX_BITSET::calcColor(std::vector<int> &L, std::vector<int> &color, int k, bool reCalc) {
     static std::vector<int> U, V, F;
+    static bitset Lb;
 
     U = L;
 
-    if (reCalc) {
-        calcOrder(L);
+    if (1 || reCalc) {
+        // calcOrder(L);
+        // std::sort(U.begin(), U.end(), [&](const int &i, const int &j) {
+            // return newOrder[i] < newOrder[j];
+        // });
+        Lb.reset();
+        for (int u : L) Lb.set(u);
+        for (int u : L) deg[u] = (Gb[u] & Lb).count();
         std::sort(U.begin(), U.end(), [&](const int &i, const int &j) {
-            return newOrder[i] < newOrder[j];
+            return deg[i] > deg[j];
         });
     } else {
         std::sort(U.begin(), U.end(), [&](const int &i, const int &j) {

@@ -8,7 +8,7 @@ class BBMCX_BITSET : public Strategy {
   public:
     std::vector<int> getMaxClique(const Graph &G);
   private:
-    static const int SIZE = 800;
+    static const int SIZE = 400;
     typedef std::bitset<SIZE> bitset;
     std::vector<int> currentClique, currentMaxClique;
     std::vector<std::vector<int> > C;

@@ -35,7 +35,7 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
             if (G[i][j]) ++deg[i], ++deg[j];
     
     greedy(); // apply greedy algorithm for better pruning
-    std::cerr << "Greedy result: " << currentMaxClique.size() << std::endl;
+    // std::cerr << "Greedy result: " << currentMaxClique.size() << std::endl;
 
     std::vector<int> V(n, 0), col(n, *std::max_element(deg.begin(), deg.end()) + 1);
 
@@ -55,8 +55,8 @@ std::vector<int> BBMCX::getMaxClique(const Graph &G) {
 
     // print(V, "V: ", 1);
     REFMC(0, V, col);
-    std::cerr << "Iteration num: " << cnt << std::endl;
-    std::cerr << "Iteration num: " << cnt1 << std::endl;
+    // std::cerr << "Iteration num: " << cnt << std::endl;
+    // std::cerr << "Iteration num: " << cnt1 << std::endl;
     std::sort(currentMaxClique.begin(), currentMaxClique.end());
 
     return currentMaxClique;
