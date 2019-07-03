@@ -5,8 +5,8 @@
 #include <map>
 #include <set>
 int step=0;
-static int S[1000000];
-static ints deg;
+static int S[1000000];// improvement by heuristically re-calculation of degrees
+static ints deg;// degrees
 static int depth=0;
 bool cmp(int a,int b){
     return deg[a]>deg[b];
@@ -20,16 +20,14 @@ ints MaxCLQ::getMaxClique(const Graph &G){
             deg[i]+=G[i][j];
     ints V;
     for(int i=0;i<G.n;++i)V.push_back(i);
-    sort(V.begin(),V.end(),cmp);
+    sort(V.begin(),V.end(),cmp);// sort by degrees
     search(G,ints(0),V);
-    // std::cerr<<step<<std::endl;
     return maxClique;
 }
-static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
+static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){// color the graph, divide it into independent sets
+    // color the points one by one, in descending order of the degrees
     static ints Vec;
-    //V=Vec;
-    //std::sort(V.begin(),V.end(),cmp);
-    if(S[depth]<=0.075*step){
+    if(S[depth]<=0.075*step){// heuristic to recalculate degrees
         Vec=V;
         for(auto x:Vec)deg[x]=0;
         for(auto x:Vec)
@@ -80,8 +78,9 @@ static void getColor(std::vector<ints > &color, const Graph &G, const ints& V){
 }
 
 static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, int cN, int x){
-    //try to find a loose set containing color x,return 0: not found 1: found
-    //cN: number of colors
+    // try to find a loose set containing color x,return 0: not found 1: found
+    // cN: number of colors
+    // a Loose Set contain several colors, and there's no clique in graph G which contains all of these colors
     static std::vector<ints > __color;
     __color.clear();
     ints SEQ;
@@ -96,9 +95,9 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
     LooseSet.push_back(x);
     bool flag=false;
     int N=__color.size();
-    static std::queue<int> unit;
+    static std::queue<int> unit;// queue for unit clause
     static std::vector<ints > COLOR;
-    for(auto v: color[x]){
+    for(auto v: color[x]){// check if every point in color[x] is a failed literal
         while(!unit.empty())unit.pop();
         ints ok(cN,0);
         COLOR = __color;
@@ -115,7 +114,7 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
             ++ind;
         }
         bool f,g;
-        while(1){
+        while(1){// apply unit propagation technique to induce contradiction
             f=false;
             for(int i=0;i<N;++i){
                 if(!ok[SEQ[i]]&&COLOR[i].empty()){
@@ -157,13 +156,13 @@ static int getLooseSet(const Graph &G, ints& tested, std::vector<ints > &color, 
     }
 }
 
-int MaxCLQ::esti(const Graph& G, const ints& V){
+int MaxCLQ::esti(const Graph& G, const ints& V){// an optimistic estimation of the maximum clique
     static std::vector<ints> color;
     static std::vector<ints> __color;
     static std::vector<std::pair<int, int> > seq;
     color.clear();
     getColor(color, G, V);
-    int UB=color.size();
+    int UB=color.size(); // chromatic number as the basic upper bound
     ints tested(UB, 0);
     __color.clear();seq.clear();
     int ind=0;
@@ -172,7 +171,8 @@ int MaxCLQ::esti(const Graph& G, const ints& V){
         ++ind;
     }
     std::sort(seq.begin(), seq.end());
-    int inconsSets = 0;//inconsistent sets
+    // divide points into disjoint looseSets to obtain better bounds
+    int inconsSets = 0;// inconsistent sets
     for(auto pr : seq){
         if(!tested[pr.second]){
             inconsSets += getLooseSet(G, tested, color, UB, pr.second);
@@ -196,7 +196,7 @@ ints MaxCLQ::intersect(const ints& A, const Graph &G,int v){//intersect A with n
     return C;
 }
 
-void MaxCLQ::search(const Graph &G, ints C, ints V){
+void MaxCLQ::search(const Graph &G, ints C, ints V){// branch & bound
     ++step;
     ++depth;
     ++S[depth];
@@ -206,15 +206,17 @@ void MaxCLQ::search(const Graph &G, ints C, ints V){
         return;
     }
     int ub = C.size() + esti(G,V);
-    if (ub <= LB){ 
+    if (ub <= LB){ // prune
         --depth;
         return;
     }
     int v = G.mindeg(V);
+    // add v into clique
     C.push_back(v);
     search(G, C, intersect(V,G,v));
     C.pop_back();
     V.erase(std::find(V.begin(), V.end(), v));   
+    // don't add v into clique
     search(G, C, V);
     --depth;
 }

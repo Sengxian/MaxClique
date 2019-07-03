@@ -10,11 +10,10 @@ class MaxCLQ : public Strategy {
   private:
     ints maxClique; // current maximum clique, lower bound
     int LB;
-
     void update(ints &C);
     void search(const Graph &G, ints C, ints V);
     int esti(const Graph& G, const ints &V);
-    ints intersect(const ints &A, const Graph&G,int v);
+    ints intersect(const ints &A, const Graph&G,int v);// intersect A with the neighbour of x
 };
 
 #endif
