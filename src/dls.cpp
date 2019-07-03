@@ -5,9 +5,7 @@ static int Rand(int n){
     return rand()%n;
 }
 ints DLS::getMaxClique(const Graph &G){
-    //srand(233);
     dls_set result=DLS_MC(G,1000000,2,10000);
-    //printf("%d\n",result.sz);
     return ints(result.lst,result.lst+result.sz);   
     
 }
@@ -25,19 +23,14 @@ void DLS::updatePenalty(){
         }
         PDcnt=PD;
     }
+    //after PD rounds, positive penalties are decreased by 1
 }
 bool DLS::expand(const Graph &G, dls_set& C, int &v){//return true if at least one point is added
     dls_set N(G,C);++T;
-   // for(int i=0;i<C.sz;++i)printf("%d ",C.lst[i]);printf("\n");
-     //   for(int i=0;i<G.n;++i)printf("%d ",C.ind[i]);printf("\n");
-       // while(1);
     if(N.sz==0)return false;
     while(N.sz != 0){
-       // printf("sz==========%d\n",C.sz);
-       // for(int i=0;i<C.sz;++i)printf("%d ",C.lst[i]);printf("\n");
-       // for(int i=0;i<G.n;++i)printf("%d ",C.ind[i]);printf("\n");
-        v=MinPenalty(N);//printf("add%d\n",v);
-        C.add(v);//printf("sz====%d\n",C.sz);
+        v=MinPenalty(N);
+        C.add(v);
         ++numSteps;
         N.del_not_neigh(G,v);
     }
@@ -75,31 +68,25 @@ void DLS::update(dls_set& A){
         maxClique=A;
     }
 }
-dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){//pd: penalty delay
-    //return the max clique it can find with size<=target
+dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){// pd: penalty delay maxSteps: iteration limit
+    // return the max clique it can find with size<=target
 
+    // initilization, C contains one randomly selected point
     numSteps=0;
     int v=Rand(G.n);
-    //ints C(1, v), C_;
-    dls_set C(G.n);//, C_(G.n);
+    dls_set C(G.n);
     C.add(v);
     initPenalty(G.n);
     PD=pd;PDcnt=pd;
  
-    while(numSteps < maxSteps){//printf("%d\n",numSteps);
-        expand(G,C,v);//printf("expanded%d\n",C.sz);
-        //if(C.sz >= target)return C;
-        //C_ = C;
+    while(numSteps < maxSteps){
+        expand(G,C,v);
         int C_=C.sz;
-        plateauSearch(G, C, C_, v);//printf("plateau\n"); 
-        while(expand(G, C, v)){//printf("fuck\n");
-            //printf("...sz==%d\n",C.sz);
+        plateauSearch(G, C, C_, v);
+        while(expand(G, C, v)){ // alternate between expand and plateauSearch
             plateauSearch(G, C, C_, v);
             if(C.sz >= target)return C;
-        //    printf("???sz==%d\n",C.sz);
-            
         }
-        //printf("%d\n",C.sz);
         for(int i=0;i<C.sz;++i){
             penalty[C.lst[i]]++;
         }
@@ -109,7 +96,8 @@ dls_set DLS::DLS_MC(const Graph &G, int target, int pd, int maxSteps){//pd: pena
             C.clear();C.add(v);
         }else{
             v=Rand(G.n);
-        //    rearrange(G,C,v);
+            // rearrange(G,C,v);
+            // pd==1 part was not implemented, because pd > 1 provide better performance
         }
     }
     return maxClique;

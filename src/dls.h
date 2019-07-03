@@ -1,7 +1,6 @@
 #ifndef dls_h
 #define dls_h
 #include "dls_set.h"
-//typedef std::pair<ints, int> intsi;
 class DLS:public Strategy{
 public:
     DLS():maxClique(1),LB(0){}

@@ -4,17 +4,16 @@
 #include <cstring>
 #include <cassert>
 #include <algorithm>
-class dls_set{
+class dls_set{// set consisting of two array in DLS algorithm 
 public:
-    int* lst,*ind;//list, index
-    int N,sz;
-//    dls_set():lst(0),ind(0),N(0),sz(0){}
+    int* lst,*ind;// list, index
+    int N,sz;//N: memory occupied sz: elements stored
     dls_set(int n):lst(0),ind(0),N(n),sz(0){
         lst = new int[n];
         ind = new int[n];
-        memset(ind,-1,sizeof(int)*N);
+        memset(ind,-1,sizeof(int)*N);// -1 for not exist
     }
-    dls_set(const Graph &G, const dls_set &C):lst(0),ind(0),N(G.n),sz(0){
+    dls_set(const Graph &G, const dls_set &C):lst(0),ind(0),N(G.n),sz(0){ // construct improving set of C in G
         lst = new int[G.n];
         ind = new int[G.n];
         memset(ind, -1, sizeof(int)*N);
@@ -32,7 +31,7 @@ public:
             }
         }
     }
-    dls_set(const Graph &G, const dls_set &C, int t):lst(0),ind(0),N(G.n),sz(0){
+    dls_set(const Graph &G, const dls_set &C, int t):lst(0),ind(0),N(G.n),sz(0){ // construct level set of C in G
         lst = new int[G.n];
         ind = new int[G.n];
         memset(ind, -1, sizeof(int)*N);
@@ -50,15 +49,15 @@ public:
             }
         }
     }
-    void add(int x){
+    void add(int x){// O(1)
         if(ind[x]==-1){
             lst[sz]=x;
             ind[x]=sz++;
         }
     }
-    void del(int x){
+    void del(int x){// O(1)
         if(ind[x]==-1)assert(0);
-        lst[ind[x]]=lst[sz-1];
+        lst[ind[x]]=lst[sz-1]; //use the last element in list to overwrite the deleted element
         ind[lst[sz-1]]=ind[x];
         ind[x]=-1;
         --sz;
@@ -93,13 +92,10 @@ public:
         return *this;
     }
     void clear(){
-     //   printf("enter\n");
         for(int i=0;i<sz;++i){
-            //printf("%d\n",lst[]);
             ind[lst[i]]=-1;
         }
         sz=0;
-        //printf("exit");
     }
 };
 #endif
