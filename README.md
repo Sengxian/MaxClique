@@ -1,5 +1,5 @@
 # MaxClique
- MaxClique algorithms for OOP Team Project
+Reproduce Paper "Infra-chromatic bound for exact maximum clique search". We propose improvements based on the algorithm, finally achieved better results.
  
 | Name       | ω  | BBMCX   | Ours     |
 |------------|----|---------|----------|
